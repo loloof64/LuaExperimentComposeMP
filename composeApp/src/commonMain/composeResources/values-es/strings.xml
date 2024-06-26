@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="save">Guardar</string>
+    <string name="open">Abrir</string>
+    <string name="save_dialog_title">Guardar archivo</string>
+    <string name="open_dialog_title">Abrir archivo</string>
+    <string name="save_success">Archivo cargado.</string>
+    <string name="open_success">Archivo abrito.</string>
+    <string name="save_error">¡No se pudo guardar el archivo!</string>
+    <string name="open_error">¡No se pudo abrir el archivo!</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="save">Sauvegarder</string>
+    <string name="open">Ouvrir</string>
+    <string name="save_dialog_title">Enregister le fichier</string>
+    <string name="open_dialog_title">Ouvrir un fichier</string>
+    <string name="save_success">Fichier sauvegardé.</string>
+    <string name="open_success">Fichier ouvert.</string>
+    <string name="save_error">Échec de sauvegarde du fichier !</string>
+    <string name="open_error">Échec d'ouverture du fichier !</string>
+</resources>

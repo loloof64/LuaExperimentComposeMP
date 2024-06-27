@@ -1,5 +1,8 @@
 package ui.screens
 
+import Execute
+import LuaLexer
+import LuaParser
 import Open
 import Save
 import androidx.compose.foundation.layout.*
@@ -8,12 +11,12 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import core.lua_interpreter.interpreter.EvalListener
 import kotlinx.coroutines.launch
 import luaexperiment.composeapp.generated.resources.*
-import luaexperiment.composeapp.generated.resources.Res
-import luaexperiment.composeapp.generated.resources.open
-import luaexperiment.composeapp.generated.resources.save
-import luaexperiment.composeapp.generated.resources.save_error
+import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.tree.ParseTreeWalker
 import org.jetbrains.compose.resources.stringResource
 import services.ShowOpenTextFileChooserButton
 import services.ShowSaveTextFileChooserButton
@@ -22,12 +25,12 @@ import services.ShowSaveTextFileChooserButton
 fun MainScreen() {
     var textContent by rememberSaveable { mutableStateOf("") }
     var saveFilename by rememberSaveable { mutableStateOf("example.txt") }
-    
+
     val saveErrorString = stringResource(Res.string.save_error)
     val saveSuccessString = stringResource(Res.string.save_success)
     val openErrorString = stringResource(Res.string.open_error)
     val openSuccessString = stringResource(Res.string.open_success)
-    
+
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -67,14 +70,33 @@ fun MainScreen() {
         textContent = newValue
     }
 
-    Scaffold(topBar = { AppBar(
-        getSuggestedSaveFileName = ::getSuggestedSaveFilename,
-        getContentToSave = ::getContentToSave,
-        onSaveSuccess = ::handleSaveSuccess,
-        onSaveError = ::handleSaveError,
-        onOpenSuccess = ::handleOpenSuccess,
-        onOpenError = ::handleOpenError,
-    ) }) {
+    fun executeScript() {
+        try {
+            val input = CharStreams.fromString(textContent)
+            val lexer = LuaLexer(input)
+            val tokens = CommonTokenStream(lexer)
+            val parser = LuaParser(tokens)
+            val tree = parser.start_()
+            val walker = ParseTreeWalker()
+            val listener = EvalListener()
+            walker.walk(listener, tree)
+            println(listener.getVariables())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    Scaffold(topBar = {
+        AppBar(
+            getSuggestedSaveFileName = ::getSuggestedSaveFilename,
+            getContentToSave = ::getContentToSave,
+            onSaveSuccess = ::handleSaveSuccess,
+            onSaveError = ::handleSaveError,
+            onOpenSuccess = ::handleOpenSuccess,
+            onOpenError = ::handleOpenError,
+            executeScript = ::executeScript,
+        )
+    }) {
         TextField(
             modifier = Modifier.padding(it).fillMaxSize(),
             value = textContent,
@@ -91,6 +113,7 @@ fun AppBar(
     onSaveError: (Exception) -> Unit,
     onOpenSuccess: (String) -> Unit,
     onOpenError: (Exception) -> Unit,
+    executeScript: () -> Unit = {},
 ) {
     TopAppBar(
         modifier = Modifier.fillMaxWidth().padding(4.dp), backgroundColor = MaterialTheme.colors.primary,
@@ -124,5 +147,14 @@ fun AppBar(
             onSuccess = { onOpenSuccess(it) },
             onError = { onOpenError(it) },
         )
+        IconButton(
+            onClick = executeScript,
+        ) {
+            Icon(
+                imageVector = Execute,
+                modifier = Modifier.size(24.dp),
+                contentDescription = stringResource(Res.string.execute)
+            )
+        }
     }
 }

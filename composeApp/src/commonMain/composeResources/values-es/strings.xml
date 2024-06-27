@@ -8,4 +8,5 @@
     <string name="open_success">Archivo abrito.</string>
     <string name="save_error">¡No se pudo guardar el archivo!</string>
     <string name="open_error">¡No se pudo abrir el archivo!</string>
+    <string name="execute">Ejecutar</string>
 </resources>

@@ -11,18 +11,19 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import core.lua_interpreter.interpreter.EvalListener
+import core.lua_interpreter.interpreter.*
 import kotlinx.coroutines.launch
 import luaexperiment.composeapp.generated.resources.*
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.ParseTreeWalker
-import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.*
 import services.ShowOpenTextFileChooserButton
 import services.ShowSaveTextFileChooserButton
 
 @Composable
 fun MainScreen() {
+
     var textContent by rememberSaveable { mutableStateOf("") }
     var saveFilename by rememberSaveable { mutableStateOf("example.txt") }
 
@@ -31,8 +32,15 @@ fun MainScreen() {
     val openErrorString = stringResource(Res.string.open_error)
     val openSuccessString = stringResource(Res.string.open_success)
 
+    val luaParserErrorLocationString = stringResource(Res.string.parser_error_location)
+    val luaMiscErrorString = stringResource(Res.string.parser_error_misc)
+    val luaUnrecognizedTokenExceptionString = stringResource(Res.string.parser_error_unrecognized_token)
+    val luaWrongTokenExceptionString = stringResource(Res.string.parser_error_wrong_token)
+    val luaUndefinedVariableExceptionString = stringResource(Res.string.parser_error_undefined_variable)
+
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+
 
     fun handleSaveSuccess(newFilename: String) {
         saveFilename = newFilename
@@ -70,19 +78,56 @@ fun MainScreen() {
         textContent = newValue
     }
 
+    fun handleParserError(error: ParserError) {
+        val messagePart1 = when (error) {
+            is UndefinedVariableException -> luaUndefinedVariableExceptionString.format(error.getFaultySource())
+        }
+        val messagePart2 = luaParserErrorLocationString.format(
+            error.getStartLine(),
+            error.getStartColumn(),
+        )
+        println("$messagePart2 => $messagePart1")
+    }
+
+    fun handleScriptSyntaxError(message: String, token: String, line: Int, column: Int) {
+        val messagePart1 = when {
+            message.contains("extraneous input") -> {
+                val messageParts = message.split("expecting '")
+                val expectedToken = messageParts.drop(1).first().dropLast(1) // removing 'trainling' symbol (')
+                luaWrongTokenExceptionString.format(token, expectedToken)
+            }
+            message.contains("missing") -> {
+                val messageParts = message.split("missing '")
+                val expectedToken = messageParts.drop(1).first().split("'").first()
+                luaWrongTokenExceptionString.format(token, expectedToken)
+            }
+            message.contains("token recognition error at") -> {
+                luaUnrecognizedTokenExceptionString.format(token)
+            }
+            else -> luaMiscErrorString.format(token)
+        }
+        val messagePart2 = luaParserErrorLocationString.format(
+            line,
+            column,
+        )
+        println("$messagePart2 => $messagePart1")
+    }
+
     fun executeScript() {
         try {
             val input = CharStreams.fromString(textContent)
             val lexer = LuaLexer(input)
             val tokens = CommonTokenStream(lexer)
             val parser = LuaParser(tokens)
+            parser.removeErrorListeners()
+            parser.addErrorListener(CustomErrorListener(::handleScriptSyntaxError))
             val tree = parser.start_()
             val walker = ParseTreeWalker()
             val listener = EvalListener()
             walker.walk(listener, tree)
             println(listener.getVariables())
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (e: ParserError) {
+            handleParserError(e)
         }
     }
 

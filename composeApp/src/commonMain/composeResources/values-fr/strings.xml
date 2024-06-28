@@ -9,4 +9,10 @@
     <string name="save_error">Échec de sauvegarde du fichier !</string>
     <string name="open_error">Échec d'ouverture du fichier !</string>
     <string name="execute">Exécuter</string>
+
+    <string name="parser_error_location">Position %1$d:%2$d</string>
+    <string name="parser_error_unrecognized_type">Symbol non reconnu (%1$s) !</string>
+    <string name="parser_error_wrong_token">Symbol incorrect (%1$s): attendant (%2$s)!</string>
+    <string name="parser_error_undefined_variable">Variable non définie (%1$s) !</string>
+    <string name="parser_error_misc">Érreur diverse (%1$s) !</string>
 </resources>

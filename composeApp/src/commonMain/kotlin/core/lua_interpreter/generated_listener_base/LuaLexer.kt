@@ -41,13 +41,13 @@ class LuaLexer(input: CharStream?) : LuaLexerBase(input) {
         return _ATN
     }
 
-    override fun action(_localctx: RuleContext, ruleIndex: Int, actionIndex: Int) {
+    override fun action(_localctx: RuleContext?, ruleIndex: Int, actionIndex: Int) {
         when (ruleIndex) {
             38 -> COMMENT_action(_localctx, actionIndex)
         }
     }
 
-    private fun COMMENT_action(_localctx: RuleContext, actionIndex: Int) {
+    private fun COMMENT_action(_localctx: RuleContext?, actionIndex: Int) {
         when (actionIndex) {
             0 -> this.HandleComment()
         }

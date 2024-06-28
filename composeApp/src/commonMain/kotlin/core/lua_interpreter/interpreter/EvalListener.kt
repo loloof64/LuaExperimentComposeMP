@@ -14,74 +14,31 @@ data class CustomErrorListener(val onError: (String, String, Int, Int) -> Unit) 
         msg: String?,
         e: RecognitionException?
     ) {
-        onError(
-            msg ?: "#Unknown message#",
-            if (offendingSymbol == null || offendingSymbol !is Token) "#Unknown token#" else offendingSymbol.text,
-            line,
-            charPositionInLine
-        )
-    }
-
-    /*
-    override fun reportContextSensitivity(
-        recognizer: Parser?,
-        dfa: DFA?,
-        startIndex: Int,
-        stopIndex: Int,
-        prediction: Int,
-        configs: ATNConfigSet?
-    ) {
-        recognizer?.let { parser ->
-            val tokenStream = parser.tokenStream
-            val startToken = tokenStream.get(startIndex)
-            val stopToken = tokenStream.get(stopIndex)
-
-            val tokenText = tokenStream.getText(Interval(startToken.startIndex, stopToken.stopIndex))
-            val line = startToken.line
-            val charPositionInLine = startToken.charPositionInLine
-
+        if (recognizer is Parser) {
             onError(
-                "Context sensitivity",
-                tokenText,
+                msg ?: "#Unknown message#",
+                if (offendingSymbol == null || offendingSymbol !is Token) "#Unknown token#" else offendingSymbol.text,
+                line,
+                charPositionInLine
+            )
+        } else {
+            val tokenDelimitersInMsg = msg?.withIndex()?.filter { it.value == '\'' }?.map { it.index }?.takeLast(2)
+            val token = tokenDelimitersInMsg?.let {
+                msg.substring(tokenDelimitersInMsg[0] + 1, tokenDelimitersInMsg[1])
+            } ?: "#Unknown token#"
+            onError(
+                msg ?: "#Unknown message#",
+                token,
                 line,
                 charPositionInLine
             )
         }
     }
-
-    override fun reportAttemptingFullContext(
-        recognizer: Parser?,
-        dfa: DFA?,
-        startIndex: Int,
-        stopIndex: Int,
-        conflictingAlts: BitSet?,
-        configs: ATNConfigSet?
-    ) {
-        recognizer?.let { parser ->
-            val tokenStream = parser.tokenStream
-            val startToken = tokenStream.get(startIndex)
-            val stopToken = tokenStream.get(stopIndex)
-
-            val tokenText = tokenStream.getText(Interval(startToken.startIndex, stopToken.stopIndex))
-            val line = startToken.line
-            val charPositionInLine = startToken.charPositionInLine
-
-            onError(
-                "Attempting full context",
-                tokenText,
-                line,
-                charPositionInLine
-            )
-        }
-    }
-    */
 }
 
 sealed class ParserError(open val context: ParserRuleContext) : Exception() {
     fun getStartLine(): Int = context.start.line
-    fun getEndLine(): Int = context.stop.line
     fun getStartColumn(): Int = context.start.charPositionInLine
-    fun getEndColumn(): Int = context.stop.charPositionInLine + context.stop.text.length
 
     fun getFaultySource(): String = context.text
 }
@@ -108,6 +65,46 @@ class EvalListener : LuaBaseListener() {
             val exp = expList.exp(i)
             val value = evaluateExpression(exp)
             variables[variableName] = value
+        }
+    }
+
+    override fun enterNamelist(ctx: LuaParser.NamelistContext?) {
+        if (ctx == null) return
+
+        tempAssignementNames.clear()
+        tempAssignementValues.clear()
+
+        ctx.NAME().forEach {
+            tempAssignementNames.add(it.text)
+        }
+    }
+
+    override fun exitExplist(ctx: LuaParser.ExplistContext?) {
+        if (ctx == null) return
+        ctx.exp().forEach { expresion ->
+            tempAssignementValues.add(evaluateExpression(expresion))
+        }
+    }
+
+    override fun exitIfstat(ctx: LuaParser.IfstatContext?) {
+        if (ctx == null) return
+
+        var conditionMet = false
+
+        if (evaluateCondition(ctx.exp(0))) {
+            executeBlock(ctx.block(0))
+            conditionMet = true
+        } else {
+            for (i in 0 until ctx.ELSEIF().size) {
+                if (evaluateCondition(ctx.exp(i + 1))) {
+                    executeBlock(ctx.block(i + 1))
+                    conditionMet = true
+                    break
+                }
+            }
+        }
+        if (!conditionMet && ctx.ELSE() != null) {
+            executeBlock(ctx.block(ctx.block().size - 1))
         }
     }
 
@@ -188,46 +185,6 @@ class EvalListener : LuaBaseListener() {
             }
 
             else -> throw Exception("Unrecognized value type !")
-        }
-    }
-
-    override fun enterNamelist(ctx: LuaParser.NamelistContext?) {
-        if (ctx == null) return
-
-        tempAssignementNames.clear()
-        tempAssignementValues.clear()
-
-        ctx.NAME().forEach {
-            tempAssignementNames.add(it.text)
-        }
-    }
-
-    override fun exitExplist(ctx: LuaParser.ExplistContext?) {
-        if (ctx == null) return
-        ctx.exp().forEach { expresion ->
-            tempAssignementValues.add(evaluateExpression(expresion))
-        }
-    }
-
-    override fun exitIfstat(ctx: LuaParser.IfstatContext?) {
-        if (ctx == null) return
-
-        var conditionMet = false
-
-        if (evaluateCondition(ctx.exp(0))) {
-            executeBlock(ctx.block(0))
-            conditionMet = true
-        } else {
-            for (i in 0 until ctx.ELSEIF().size) {
-                if (evaluateCondition(ctx.exp(i + 1))) {
-                    executeBlock(ctx.block(i + 1))
-                    conditionMet = true
-                    break
-                }
-            }
-        }
-        if (!conditionMet && ctx.ELSE() != null) {
-            executeBlock(ctx.block(ctx.block().size - 1))
         }
     }
 

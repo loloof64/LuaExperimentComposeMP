@@ -11,7 +11,7 @@
     <string name="execute">Ejecutar</string>
 
     <string name="parser_error_location">Posición %1$d:%2$d</string>
-    <string name="parser_error_unrecognized_type">¡Símbolo no reconocido (%1$s)!</string>
+    <string name="parser_error_unrecognized_token">¡Símbolo no reconocido (%1$s)!</string>
     <string name="parser_error_wrong_token">¡Símbolo incorrecto (%1$s): esperando (%2$s)!</string>
     <string name="parser_error_undefined_variable">¡Variable no definida (%1$s) !</string>
     <string name="parser_error_misc">¡Error varios (%1$s)!</string>

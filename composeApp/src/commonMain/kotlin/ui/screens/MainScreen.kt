@@ -117,6 +117,8 @@ fun MainScreen() {
         try {
             val input = CharStreams.fromString(textContent)
             val lexer = LuaLexer(input)
+            lexer.removeErrorListeners()
+            lexer.addErrorListener(CustomErrorListener(::handleScriptSyntaxError))
             val tokens = CommonTokenStream(lexer)
             val parser = LuaParser(tokens)
             parser.removeErrorListeners()

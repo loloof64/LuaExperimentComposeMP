@@ -1,5 +1,3 @@
-package services
-
 import android.content.ContentResolver
 import android.net.Uri
 import android.provider.OpenableColumns

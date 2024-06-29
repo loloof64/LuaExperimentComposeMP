@@ -1,5 +1,3 @@
-package services
-
 import androidx.compose.material.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -11,6 +9,9 @@ import luaexperiment.composeapp.generated.resources.open_dialog_title
 import luaexperiment.composeapp.generated.resources.save_dialog_title
 import org.jetbrains.compose.resources.stringResource
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.util.*
 import javax.swing.JFileChooser
 import javax.swing.SwingUtilities
 import javax.swing.filechooser.FileNameExtensionFilter
@@ -24,15 +25,20 @@ actual fun ShowSaveTextFileChooserButton(
     onError: (Exception) -> Unit
 ) {
     val dialogTitle = stringResource(Res.string.save_dialog_title)
-    var currentPath by rememberSaveable { mutableStateOf(File(System.getProperty("user.home"))) }
+    var currentPath by rememberSaveable {
+        mutableStateOf<String?>(
+            readExplorerPathFromProperties() ?: System.getProperty("user.home")
+        )
+    }
     IconButton(onClick = {
         openSaveTextFileChooser(
             suggestedName = getSuggestedFilename(),
             title = dialogTitle,
-            currentPath = currentPath,
+            currentPath = File(currentPath ?: System.getProperty("user.home")),
             content = getContentToSave(),
             onSuccess = { newFileName, newPath ->
-                currentPath = newPath
+                currentPath = newPath.absolutePath
+                registerExplorerPathIntoProperties(newPath.parentFile.absolutePath)
                 onSuccess(newFileName)
             },
             onError = onError
@@ -49,14 +55,20 @@ actual fun ShowOpenTextFileChooserButton(
     onError: (Exception) -> Unit
 ) {
     val dialogTitle = stringResource(Res.string.open_dialog_title)
-    var currentPath by rememberSaveable { mutableStateOf(File(System.getProperty("user.home"))) }
+    var currentPath by rememberSaveable {
+        mutableStateOf<String?>(
+            readExplorerPathFromProperties() ?: System.getProperty("user.home")
+        )
+    }
 
     IconButton(onClick = {
         openLoadTextFileChooser(
             title = dialogTitle,
-            currentPath = currentPath,
+            // we give a dummy file name, so that the file chooser will point to the right directory
+            currentPath = File(currentPath ?: System.getProperty("user.home"), "example.txt"),
             onSuccess = { content, newPath ->
-                currentPath = newPath
+                currentPath = newPath.absolutePath
+                registerExplorerPathIntoProperties(newPath.parentFile.absolutePath)
                 onSuccess(content)
             },
             onError = onError,
@@ -64,6 +76,42 @@ actual fun ShowOpenTextFileChooserButton(
     }) {
         buttonIcon()
     }
+}
+
+private fun readExplorerPathFromProperties(): String? {
+    val path = getPropertiesFilePath()
+    File(path).parentFile.mkdirs()
+    File(path).createNewFile()
+    val properties = Properties()
+    FileInputStream(path).use {
+        properties.load(it)
+    }
+    return properties.getProperty("saveFileExplorerPath")
+}
+
+private fun registerExplorerPathIntoProperties(newPath: String) {
+    val path = getPropertiesFilePath()
+    File(path).parentFile.mkdirs()
+    File(path).createNewFile()
+
+    val properties = Properties()
+    properties.setProperty("saveFileExplorerPath", newPath)
+
+
+    FileOutputStream(path).use {
+        properties.store(it, "")
+    }
+}
+
+private fun getPropertiesFilePath(): String {
+    val homePath = System.getProperty("user.home")
+    val separator = System.getProperty("file.separator")
+    val basePath = when (System.getProperty("os.name")) {
+        "Linux" -> "$homePath$separator.config"
+        "Windows" -> "$homePath${separator}AppData${separator}Local"
+        else -> throw Exception("OS ${System.getProperty("os.name")} is not supported for this Jetpack Compose Desktop project.")
+    }
+    return "$basePath${separator}loloof64${separator}LuaExperiment${separator}config.properties"
 }
 
 private fun openSaveTextFileChooser(
@@ -74,6 +122,9 @@ private fun openSaveTextFileChooser(
     onSuccess: (String, File) -> Unit,
     onError: (Exception) -> Unit
 ) {
+    /////////////////////////////////////////
+    println("Save => ${currentPath.absolutePath}")
+    ///////////////////////////////////////////
     SwingUtilities.invokeLater {
         try {
             val extFilter = FileNameExtensionFilter(
@@ -104,6 +155,9 @@ private fun openLoadTextFileChooser(
     onSuccess: (String, File) -> Unit,
     onError: (Exception) -> Unit
 ) {
+    /////////////////////////////////////////
+    println("Open => ${currentPath.absolutePath}")
+    ///////////////////////////////////////////
     SwingUtilities.invokeLater {
         try {
             val extFilter = FileNameExtensionFilter(

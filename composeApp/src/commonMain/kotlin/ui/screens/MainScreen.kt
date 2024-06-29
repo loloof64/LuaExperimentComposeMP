@@ -5,6 +5,8 @@ import LuaLexer
 import LuaParser
 import Open
 import Save
+import ShowOpenTextFileChooserButton
+import ShowSaveTextFileChooserButton
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -18,8 +20,6 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 import org.jetbrains.compose.resources.*
-import services.ShowOpenTextFileChooserButton
-import services.ShowSaveTextFileChooserButton
 
 @Composable
 fun MainScreen() {

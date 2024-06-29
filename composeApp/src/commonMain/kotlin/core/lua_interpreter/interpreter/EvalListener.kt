@@ -19,7 +19,7 @@ data class CustomErrorListener(val onError: (String, String, Int, Int) -> Unit) 
                 msg ?: "#Unknown message#",
                 if (offendingSymbol == null || offendingSymbol !is Token) "#Unknown token#" else offendingSymbol.text,
                 line,
-                charPositionInLine
+                charPositionInLine + 1
             )
         } else {
             val tokenDelimitersInMsg = msg?.withIndex()?.filter { it.value == '\'' }?.map { it.index }?.takeLast(2)
@@ -30,7 +30,7 @@ data class CustomErrorListener(val onError: (String, String, Int, Int) -> Unit) 
                 msg ?: "#Unknown message#",
                 token,
                 line,
-                charPositionInLine
+                charPositionInLine + 1
             )
         }
     }

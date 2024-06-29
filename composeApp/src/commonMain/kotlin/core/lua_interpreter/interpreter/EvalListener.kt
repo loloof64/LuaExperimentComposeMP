@@ -222,9 +222,9 @@ class EvalListener : LuaBaseListener() {
 
     private fun executeBlock(ctx: LuaParser.BlockContext) {
         for (stat in ctx.stat()) {
-            if (stat.assign() != null) {
+            try {
                 exitAssign(stat.assign())
-            } else if (stat.ifstat() != null) {
+            } catch (e: NullPointerException) {
                 exitIfstat(stat.ifstat())
             }
         }

@@ -39,6 +39,7 @@ fun MainScreen() {
     val luaUndefinedVariableExceptionString = stringResource(Res.string.parser_error_undefined_variable)
     val luaWrongTokenExceptionAlternativesString = stringResource(Res.string.parser_error_wrong_token_alternatives)
     val luaIfStatementMissingAtLeastOneBlockString = stringResource(Res.string.parser_error_missing_statements_block)
+    val luaAssignementExceptionString = stringResource(Res.string.parser_error_invalid_assignements)
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -107,8 +108,11 @@ fun MainScreen() {
                 else messagePartsV2.drop(1).first()
                 luaWrongTokenExceptionString.format(token, expectedToken)
             }
+            message.contains("missing NAME at ") -> {
+                luaAssignementExceptionString
+            }
 
-            message.contains("missing") -> {
+            message.contains("missing '") -> {
                 val messageParts = message.split("missing '")
                 val expectedToken = messageParts.drop(1).first().split("'").first()
                 luaWrongTokenExceptionString.format(token, expectedToken)

@@ -17,4 +17,5 @@
     <string name="parser_error_misc">Miscellaneous error (%1$s) !</string>
     <string name="parser_error_wrong_token_alternatives">Wrong symbol (%1$s) : expecting one among (%2$s) !</string>
     <string name="parser_error_missing_statements_block">The 'if' statement is missing at least one statements block or condition !</string>
+    <string name="parser_error_invalid_assignements">Invalid assignment statement !</string>
 </resources>

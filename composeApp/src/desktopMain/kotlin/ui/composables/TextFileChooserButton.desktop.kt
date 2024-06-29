@@ -11,6 +11,7 @@ import org.jetbrains.compose.resources.stringResource
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.nio.file.FileSystems
 import java.util.*
 import javax.swing.JFileChooser
 import javax.swing.SwingUtilities
@@ -105,7 +106,7 @@ private fun registerExplorerPathIntoProperties(newPath: String) {
 
 private fun getPropertiesFilePath(): String {
     val homePath = System.getProperty("user.home")
-    val separator = System.getProperty("file.separator")
+    val separator = FileSystems.getDefault().separator
     val basePath = when (System.getProperty("os.name")) {
         "Linux" -> "$homePath$separator.config"
         "Windows" -> "$homePath${separator}AppData${separator}Local"
@@ -122,9 +123,6 @@ private fun openSaveTextFileChooser(
     onSuccess: (String, File) -> Unit,
     onError: (Exception) -> Unit
 ) {
-    /////////////////////////////////////////
-    println("Save => ${currentPath.absolutePath}")
-    ///////////////////////////////////////////
     SwingUtilities.invokeLater {
         try {
             val extFilter = FileNameExtensionFilter(
@@ -155,9 +153,6 @@ private fun openLoadTextFileChooser(
     onSuccess: (String, File) -> Unit,
     onError: (Exception) -> Unit
 ) {
-    /////////////////////////////////////////
-    println("Open => ${currentPath.absolutePath}")
-    ///////////////////////////////////////////
     SwingUtilities.invokeLater {
         try {
             val extFilter = FileNameExtensionFilter(

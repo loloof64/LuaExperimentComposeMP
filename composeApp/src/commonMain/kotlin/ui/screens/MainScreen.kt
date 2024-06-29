@@ -37,6 +37,7 @@ fun MainScreen() {
     val luaUnrecognizedTokenExceptionString = stringResource(Res.string.parser_error_unrecognized_token)
     val luaWrongTokenExceptionString = stringResource(Res.string.parser_error_wrong_token)
     val luaUndefinedVariableExceptionString = stringResource(Res.string.parser_error_undefined_variable)
+    val luaWrongTokenExceptionAlternativesString = stringResource(Res.string.parser_error_wrong_token_alternatives)
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -91,19 +92,30 @@ fun MainScreen() {
 
     fun handleScriptSyntaxError(message: String, token: String, line: Int, column: Int) {
         val messagePart1 = when {
+            message.contains("mismatched input") -> {
+                val messageParts = message.split("expecting ")
+                val expectedToken = messageParts[1]
+                luaWrongTokenExceptionAlternativesString.format(token, expectedToken)
+            }
+
             message.contains("extraneous input") -> {
-                val messageParts = message.split("expecting '")
-                val expectedToken = messageParts.drop(1).first().dropLast(1) // removing 'trainling' symbol (')
+                val messagePartsV1 = message.split("expecting '") // for misc tokens
+                val messagePartsV2 = message.split("expecting ") // for <EOF>
+                val expectedToken = if (messagePartsV1.size > 1) messagePartsV1.drop(1).first().dropLast(1)
+                else messagePartsV2.drop(1).first()
                 luaWrongTokenExceptionString.format(token, expectedToken)
             }
+
             message.contains("missing") -> {
                 val messageParts = message.split("missing '")
                 val expectedToken = messageParts.drop(1).first().split("'").first()
                 luaWrongTokenExceptionString.format(token, expectedToken)
             }
+
             message.contains("token recognition error at") -> {
                 luaUnrecognizedTokenExceptionString.format(token)
             }
+
             else -> luaMiscErrorString.format(token)
         }
         val messagePart2 = luaParserErrorLocationString.format(

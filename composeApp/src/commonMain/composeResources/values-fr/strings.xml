@@ -16,4 +16,5 @@
     <string name="parser_error_undefined_variable">Variable non définie (%1$s) !</string>
     <string name="parser_error_misc">Érreur diverse (%1$s) !</string>
     <string name="parser_error_wrong_token_alternatives">Symbol non reconnu (%1$s): attendant un parmi (%2$s) !</string>
+    <string name="parser_error_missing_statements_block">Il manque au moins un bloc d'instructions ou condition dans l'instruction 'if' !</string>
 </resources>

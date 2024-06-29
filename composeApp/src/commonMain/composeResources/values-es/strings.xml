@@ -16,4 +16,5 @@
     <string name="parser_error_undefined_variable">¡Variable no definida (%1$s) !</string>
     <string name="parser_error_misc">¡Error varios (%1$s)!</string>
     <string name="parser_error_wrong_token_alternatives">¡Símbolo no reconocido (%1$s): esperando uno entre (%2$s)!</string>
+    <string name="parser_error_missing_statements_block">¡Lla declaración 'if' le falta al menos un bloque de declaraciones o condición!</string>
 </resources>

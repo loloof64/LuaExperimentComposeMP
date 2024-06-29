@@ -38,6 +38,7 @@ fun MainScreen() {
     val luaWrongTokenExceptionString = stringResource(Res.string.parser_error_wrong_token)
     val luaUndefinedVariableExceptionString = stringResource(Res.string.parser_error_undefined_variable)
     val luaWrongTokenExceptionAlternativesString = stringResource(Res.string.parser_error_wrong_token_alternatives)
+    val luaIfStatementMissingAtLeastOneBlockString = stringResource(Res.string.parser_error_missing_statements_block)
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -82,6 +83,7 @@ fun MainScreen() {
     fun handleParserError(error: ParserError) {
         val messagePart1 = when (error) {
             is UndefinedVariableException -> luaUndefinedVariableExceptionString.format(error.getFaultySource())
+            is MissingSomeStatementBlocksInIfExpressionException -> luaIfStatementMissingAtLeastOneBlockString
         }
         val messagePart2 = luaParserErrorLocationString.format(
             error.getStartLine(),

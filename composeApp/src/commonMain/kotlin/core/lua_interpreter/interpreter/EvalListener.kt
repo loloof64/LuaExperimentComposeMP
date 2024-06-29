@@ -44,6 +44,8 @@ sealed class ParserError(open val context: ParserRuleContext) : Exception() {
 }
 
 data class UndefinedVariableException(override val context: ParserRuleContext) : ParserError(context)
+data class MissingSomeStatementBlocksInIfExpressionException(override val context: ParserRuleContext) :
+    ParserError(context)
 
 class EvalListener : LuaBaseListener() {
 
@@ -90,6 +92,19 @@ class EvalListener : LuaBaseListener() {
         if (ctx == null) return
 
         var conditionMet = false
+
+        try {
+            when {
+                ctx.block() == null || ctx.block().isEmpty() -> throw MissingSomeStatementBlocksInIfExpressionException(ctx)
+                ctx.ELSE() != null && ctx.ELSEIF() == null && ctx.block().size < 2 -> throw MissingSomeStatementBlocksInIfExpressionException(ctx)
+                ctx.ELSEIF() != null && ctx.ELSE() == null && ctx.block().size < (ctx.ELSEIF().size + 1) -> throw MissingSomeStatementBlocksInIfExpressionException(
+                    ctx
+                )
+                ctx.block().size < (2+ctx.ELSEIF().size) -> throw MissingSomeStatementBlocksInIfExpressionException(ctx)
+            }
+        } catch (e: NullPointerException) {
+            throw MissingSomeStatementBlocksInIfExpressionException(ctx)
+        }
 
         if (evaluateCondition(ctx.exp(0))) {
             executeBlock(ctx.block(0))

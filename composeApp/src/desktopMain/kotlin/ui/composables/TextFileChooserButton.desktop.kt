@@ -8,6 +8,8 @@ import luaexperiment.composeapp.generated.resources.Res
 import luaexperiment.composeapp.generated.resources.open_dialog_title
 import luaexperiment.composeapp.generated.resources.save_dialog_title
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.hostOs
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -107,9 +109,9 @@ private fun registerExplorerPathIntoProperties(newPath: String) {
 private fun getPropertiesFilePath(): String {
     val homePath = System.getProperty("user.home")
     val separator = FileSystems.getDefault().separator
-    val basePath = when (System.getProperty("os.name")) {
-        "Linux" -> "$homePath$separator.config"
-        "Windows" -> "$homePath${separator}AppData${separator}Local"
+    val basePath = when (hostOs) {
+        OS.Linux -> "$homePath$separator.config"
+        OS.Windows -> "$homePath${separator}AppData${separator}Local"
         else -> throw Exception("OS ${System.getProperty("os.name")} is not supported for this Jetpack Compose Desktop project.")
     }
     return "$basePath${separator}loloof64${separator}LuaExperiment${separator}config.properties"

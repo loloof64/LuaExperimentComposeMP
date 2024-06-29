@@ -47,6 +47,8 @@ data class UndefinedVariableException(override val context: ParserRuleContext) :
 data class MissingSomeStatementBlocksInIfExpressionException(override val context: ParserRuleContext) :
     ParserError(context)
 
+data class InvalidAssignementStatementException(override val context: ParserRuleContext) : ParserError(context)
+
 class EvalListener : LuaBaseListener() {
 
     private val variables = mutableMapOf<String, Any>()
@@ -57,6 +59,9 @@ class EvalListener : LuaBaseListener() {
 
     override fun exitAssign(ctx: LuaParser.AssignContext?) {
         if (ctx == null) return
+
+        val thereIsNoExpression = ctx.childCount < 3
+        if (thereIsNoExpression) throw InvalidAssignementStatementException(ctx)
 
         val nameList = ctx.namelist()
         val expList = ctx.explist()
@@ -95,12 +100,21 @@ class EvalListener : LuaBaseListener() {
 
         try {
             when {
-                ctx.block() == null || ctx.block().isEmpty() -> throw MissingSomeStatementBlocksInIfExpressionException(ctx)
-                ctx.ELSE() != null && ctx.ELSEIF() == null && ctx.block().size < 2 -> throw MissingSomeStatementBlocksInIfExpressionException(ctx)
+                ctx.block() == null || ctx.block().isEmpty() -> throw MissingSomeStatementBlocksInIfExpressionException(
+                    ctx
+                )
+
+                ctx.ELSE() != null && ctx.ELSEIF() == null && ctx.block().size < 2 -> throw MissingSomeStatementBlocksInIfExpressionException(
+                    ctx
+                )
+
                 ctx.ELSEIF() != null && ctx.ELSE() == null && ctx.block().size < (ctx.ELSEIF().size + 1) -> throw MissingSomeStatementBlocksInIfExpressionException(
                     ctx
                 )
-                ctx.block().size < (2+ctx.ELSEIF().size) -> throw MissingSomeStatementBlocksInIfExpressionException(ctx)
+
+                ctx.block().size < (2 + ctx.ELSEIF().size) -> throw MissingSomeStatementBlocksInIfExpressionException(
+                    ctx
+                )
             }
         } catch (e: NullPointerException) {
             throw MissingSomeStatementBlocksInIfExpressionException(ctx)

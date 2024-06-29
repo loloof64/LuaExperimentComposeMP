@@ -18,4 +18,5 @@
     <string name="parser_error_wrong_token_alternatives">¡Símbolo no reconocido (%1$s): esperando uno entre (%2$s)!</string>
     <string name="parser_error_missing_statements_block">¡Lla declaración 'if' le falta al menos un bloque de declaraciones o condición!</string>
     <string name="parser_error_invalid_assignements">¡Declaración de asignación no válida!</string>
+    <string name="parser_error_not_a_statements_block">¡La declaración 'if' tiene al menos una rama que no es un bloque de declaraciones!</string>
 </resources>

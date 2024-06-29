@@ -85,6 +85,7 @@ fun MainScreen() {
         val messagePart1 = when (error) {
             is UndefinedVariableException -> luaUndefinedVariableExceptionString.format(error.getFaultySource())
             is MissingSomeStatementBlocksInIfExpressionException -> luaIfStatementMissingAtLeastOneBlockString
+            is InvalidAssignementStatementException -> luaAssignementExceptionString
         }
         val messagePart2 = luaParserErrorLocationString.format(
             error.getStartLine(),

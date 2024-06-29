@@ -66,11 +66,15 @@ class EvalListener : LuaBaseListener() {
         val nameList = ctx.namelist()
         val expList = ctx.explist()
 
+        // we must first evaluate all values from expressions list
+        expList.exp().forEach { expresion ->
+            tempAssignementValues.add(evaluateExpression(expresion))
+        }
+
         for (i in 0 until nameList.NAME().size) {
             val variableName = nameList.NAME(i).text
-            if (expList.exp().size <= i) break
-            val exp = expList.exp(i)
-            val value = evaluateExpression(exp)
+            if (tempAssignementValues.size <= i) break
+            val value = tempAssignementValues[i]
             variables[variableName] = value
         }
     }
@@ -83,13 +87,6 @@ class EvalListener : LuaBaseListener() {
 
         ctx.NAME().forEach {
             tempAssignementNames.add(it.text)
-        }
-    }
-
-    override fun exitExplist(ctx: LuaParser.ExplistContext?) {
-        if (ctx == null) return
-        ctx.exp().forEach { expresion ->
-            tempAssignementValues.add(evaluateExpression(expresion))
         }
     }
 

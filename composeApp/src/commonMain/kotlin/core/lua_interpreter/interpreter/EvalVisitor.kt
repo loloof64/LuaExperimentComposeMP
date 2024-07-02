@@ -50,29 +50,29 @@ data class MissingSomeStatementBlocksInIfExpressionException(override val contex
 
 data class InvalidAssignementStatementException(override val context: ParserRuleContext) : ParserError(context)
 
-val no_else_if_validated = Double.NEGATIVE_INFINITY
+val no_elseif_validated = Double.NEGATIVE_INFINITY
 
 class EvalVisitor : LuaBaseVisitor<Any?>() {
-    
+
     fun getVariables() = variables.toMap()
 
     override fun visitAssign(ctx: LuaParser.AssignContext?): Any? {
         if (ctx == null) throw IllegalArgumentException("ctx is null !")
-        
+
         val expListValue = ctx.explist()
         val thereIsNoExpression = expListValue.isEmpty
         if (thereIsNoExpression) throw InvalidAssignementStatementException(ctx)
-        
+
         // we must first evaluate all values from expressions list
         val values = visitExplist(expListValue) as List<Any?>
-        
-        // then we can attributes values to variables
+
+        // then we can attribute values to variables
         val names = visitNamelist(ctx.namelist()) as List<String>
-        for (i in 0 until names.size) {
+        for (i in names.indices) {
             val variableName = names[i]
-            variables[variableName] = if (values.size >= i+1) values[i] else null
+            variables[variableName] = if (values.size >= i + 1) values[i] else null
         }
-        
+
         return null
     }
 
@@ -89,27 +89,24 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
     }
 
     override fun visitIfstat(ctx: LuaParser.IfstatContext?): Any? {
-        val conditionMet = visit(ctx?.ifCond) as Boolean
-        if (conditionMet) return visit(ctx?.normalExec)
-        else {
-            val elseIfResult = visit(ctx?.elseIfAlts())
-            return if (elseIfResult != no_else_if_validated) elseIfResult else visit(ctx?.elseStat())
-        }
-    }
+        if (ctx == null) throw NullPointerException()
+        val conditions = ctx.exp()
+        val blocks = ctx.block()
 
-    override fun visitElseIfAlts(ctx: LuaParser.ElseIfAltsContext?): Any? {
-        for (i in 0 until (ctx?.elseIfCond?.childCount ?: 0)) {
-            val conditionMet = visit(ctx?.elseIfCond?.getChild(i)) as Boolean
-            if (conditionMet) {
-                return visit(ctx?.elseIfExec?.getChild(i))
+        for (i in conditions.indices) {
+            if (evaluateCondition(conditions[i])) {
+                return visit(blocks[i])
             }
         }
-        return no_else_if_validated
+
+        // Si aucune condition n'est vraie et qu'il y a un bloc else
+        if (blocks.size > conditions.size) {
+            return visit(blocks.last())
+        }
+
+        return null
     }
 
-    override fun visitElseStat(ctx: LuaParser.ElseStatContext?): Any? {
-        return visit(ctx?.endExec)
-    }
 
     override fun visitTrueExpr(ctx: LuaParser.TrueExprContext?): Any? {
         return true
@@ -123,18 +120,18 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
     override fun visitExponentExpr(ctx: LuaParser.ExponentExprContext?): Any? {
         val left = visit(ctx?.exp(0)) as Int
         val right = visit(ctx?.exp(1)) as Int
-        
+
         return left.toDouble().pow(right.toDouble()).toInt()
     }
 
     override fun visitUnaryExpr(ctx: LuaParser.UnaryExprContext?): Any? {
         val value = visit(ctx?.exp())
         val operator = ctx?.op?.type ?: -1
-        
+
         return when (operator) {
             LuaParser.NOT -> !(value as Boolean)
             LuaParser.MINUS -> -(value as Int)
-            else -> throw  Exception("Unrecognized unary operator '$operator'")
+            else -> throw Exception("Unrecognized unary operator '$operator'")
         }
     }
 
@@ -142,13 +139,13 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
         val left = visit(ctx?.exp(0)) as Int
         val right = visit(ctx?.exp(1)) as Int
         val operator = ctx?.op?.type ?: -1
-        
-        return  when (operator) {
+
+        return when (operator) {
             LuaParser.STAR -> left * right
             LuaParser.SLASH -> left / right
             LuaParser.PER -> left % right
             LuaParser.SS -> left / right
-            else -> throw  Exception("Unrecognized mulDivModulo operator '$operator'")
+            else -> throw Exception("Unrecognized mulDivModulo operator '$operator'")
         }
     }
 
@@ -156,11 +153,11 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
         val left = visit(ctx?.exp(0)) as Int
         val right = visit(ctx?.exp(1)) as Int
         val operator = ctx?.op?.type ?: -1
-        
+
         return when (operator) {
             LuaParser.PLUS -> left + right
             LuaParser.MINUS -> left - right
-            else -> throw  Exception("Unrecognized plusMinus operator '$operator'")
+            else -> throw Exception("Unrecognized plusMinus operator '$operator'")
         }
     }
 
@@ -168,7 +165,7 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
         val left = visit(ctx?.exp(0)) as Int
         val right = visit(ctx?.exp(1)) as Int
         val operator = ctx?.op?.type ?: -1
-        
+
         return when (operator) {
             LuaParser.LT -> left < right
             LuaParser.GT -> left > right
@@ -176,7 +173,7 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
             LuaParser.GE -> left >= right
             LuaParser.EE -> left == right
             LuaParser.SQEQ -> left != right
-            else -> throw  Exception("Unrecognized boolean binary operator '$operator'")
+            else -> throw Exception("Unrecognized boolean binary operator '$operator'")
         }
     }
 
@@ -218,6 +215,10 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
 
     override fun visitIntegerValue(ctx: LuaParser.IntegerValueContext?): Any? {
         return ctx?.text?.toInt()
+    }
+
+    private fun evaluateCondition(ctx: LuaParser.ExpContext?): Boolean {
+        return visit(ctx) as? Boolean ?: false
     }
 
     private val variables = mutableMapOf<String, Any?>()

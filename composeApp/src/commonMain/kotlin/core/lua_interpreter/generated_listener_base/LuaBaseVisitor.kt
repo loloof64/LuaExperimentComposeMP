@@ -105,28 +105,6 @@ open class LuaBaseVisitor<T> : AbstractParseTreeVisitor<T>(), LuaVisitor<T> {
      * The default implementation returns the result of calling
      * [.visitChildren] on `ctx`.
      */
-    override fun visitElseIfAlts(ctx: ElseIfAltsContext?): T {
-        return visitChildren(ctx)
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     *
-     * The default implementation returns the result of calling
-     * [.visitChildren] on `ctx`.
-     */
-    override fun visitElseStat(ctx: ElseStatContext?): T {
-        return visitChildren(ctx)
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     *
-     * The default implementation returns the result of calling
-     * [.visitChildren] on `ctx`.
-     */
     override fun visitNamelist(ctx: NamelistContext?): T {
         return visitChildren(ctx)
     }

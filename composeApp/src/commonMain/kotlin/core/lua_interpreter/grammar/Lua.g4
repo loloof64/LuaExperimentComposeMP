@@ -49,17 +49,11 @@ assign
 	;
 	
 ifstat
-	: 'if' ifCond=exp 'then' normalExec=block elseIfAlts elseStat 'end'
+	:	'if' exp 'then' block 
+		('elseif' exp 'then' block)* 
+		('else' endExec=block)? 
+		'end'
 	;
-	
-elseIfAlts
-	: ('elseif' elseIfCond=exp 'then' elseIfExec=block)*
-	;
-
-elseStat
-	: ('else' endExec=block)?
-	;
-	
 
 namelist
     : NAME (',' NAME)*

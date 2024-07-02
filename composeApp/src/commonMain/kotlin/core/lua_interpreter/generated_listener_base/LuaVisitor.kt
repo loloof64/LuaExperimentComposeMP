@@ -69,20 +69,6 @@ interface LuaVisitor<T> : ParseTreeVisitor<T> {
     fun visitIfstat(ctx: IfstatContext?): T
 
     /**
-     * Visit a parse tree produced by [LuaParser.elseIfAlts].
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    fun visitElseIfAlts(ctx: ElseIfAltsContext?): T
-
-    /**
-     * Visit a parse tree produced by [LuaParser.elseStat].
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    fun visitElseStat(ctx: ElseStatContext?): T
-
-    /**
      * Visit a parse tree produced by [LuaParser.namelist].
      * @param ctx the parse tree
      * @return the visitor result

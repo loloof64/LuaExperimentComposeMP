@@ -56,11 +56,11 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
     override fun visitAssign(ctx: LuaParser.AssignContext?): Any? {
         if (ctx == null) throw NullPointerException()
 
-        val expListValue = ctx.explist()
-        val thereIsNoExpression = expListValue.isEmpty
-        if (thereIsNoExpression) throw InvalidAssignementStatementException(ctx)
+        val hasNoAffectation = ctx.getToken(LuaParser.EQ, 0) == null
+        if (hasNoAffectation) throw InvalidAssignementStatementException(ctx)
 
         // we must first evaluate all values from expressions list
+        val expListValue = ctx.explist()
         val values = visitExplist(expListValue) as List<Any?>
 
         // then we can attribute values to variables

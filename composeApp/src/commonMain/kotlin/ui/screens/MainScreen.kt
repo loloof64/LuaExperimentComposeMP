@@ -34,6 +34,7 @@ fun MainScreen() {
 
     val luaParserErrorLocationString = stringResource(Res.string.parser_error_location)
     val luaMiscErrorString = stringResource(Res.string.parser_error_misc)
+    val luaMiscErrorUnknownTokenString = stringResource(Res.string.parser_error_misc_unknown_token)
     val luaUnrecognizedTokenExceptionString = stringResource(Res.string.parser_error_unrecognized_token)
     val luaWrongTokenExceptionString = stringResource(Res.string.parser_error_wrong_token)
     val luaUndefinedVariableExceptionString = stringResource(Res.string.parser_error_undefined_variable)
@@ -132,6 +133,11 @@ fun MainScreen() {
         println("$messagePart2 => $messagePart1")
     }
 
+    fun handleMiscError(ex: Exception) {
+        println(luaMiscErrorUnknownTokenString)
+        ex.printStackTrace()
+    }
+
     fun executeScript() {
         try {
             val input = CharStreams.fromString(textContent)
@@ -148,6 +154,8 @@ fun MainScreen() {
             println(visitor.getVariables())
         } catch (e: ParserError) {
             handleParserError(e)
+        } catch (e: Exception) {
+            handleMiscError(e)
         }
     }
 

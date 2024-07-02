@@ -90,13 +90,19 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
         val conditions = ctx.exp()
         val blocks = ctx.block()
 
+        val hasElseBlock = ctx.getToken(LuaParser.ELSE, 0) != null
+        val expectedBlocksCount = conditions.size + (if (hasElseBlock) 1 else 0)
+        val hasEnoughConditionsAndBlocks =
+            conditions.size >= 1 && blocks.size >= 1 && blocks.size == expectedBlocksCount
+
+        if (!hasEnoughConditionsAndBlocks) throw MissingSomeStatementBlocksInIfExpressionException(ctx)
+
         for (i in conditions.indices) {
             if (evaluateCondition(conditions[i])) {
                 return visit(blocks[i])
             }
         }
 
-        // Si aucune condition n'est vraie et qu'il y a un bloc else
         if (blocks.size > conditions.size) {
             return visit(blocks.last())
         }
@@ -223,7 +229,7 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
         val operator = ctx.op?.type ?: -1
 
         if (left == null || right == null) throw UndefinedVariableException(ctx)
-        
+
         return when (operator) {
             LuaParser.AMP -> left and right
             LuaParser.PIPE -> left or right

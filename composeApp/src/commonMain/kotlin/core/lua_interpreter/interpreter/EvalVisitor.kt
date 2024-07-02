@@ -3,7 +3,6 @@ package core.lua_interpreter.interpreter
 import LuaBaseVisitor
 import LuaParser
 import org.antlr.v4.runtime.*
-import java.lang.IllegalArgumentException
 import kotlin.math.pow
 
 data class CustomErrorListener(val onError: (String, String, Int, Int) -> Unit) : BaseErrorListener() {
@@ -50,14 +49,12 @@ data class MissingSomeStatementBlocksInIfExpressionException(override val contex
 
 data class InvalidAssignementStatementException(override val context: ParserRuleContext) : ParserError(context)
 
-val no_elseif_validated = Double.NEGATIVE_INFINITY
-
 class EvalVisitor : LuaBaseVisitor<Any?>() {
 
     fun getVariables() = variables.toMap()
 
     override fun visitAssign(ctx: LuaParser.AssignContext?): Any? {
-        if (ctx == null) throw IllegalArgumentException("ctx is null !")
+        if (ctx == null) throw NullPointerException()
 
         val expListValue = ctx.explist()
         val thereIsNoExpression = expListValue.isEmpty
@@ -118,15 +115,21 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
 
 
     override fun visitExponentExpr(ctx: LuaParser.ExponentExprContext?): Any? {
-        val left = visit(ctx?.exp(0)) as Int
-        val right = visit(ctx?.exp(1)) as Int
+        if (ctx == null) throw NullPointerException()
+
+        val left = ctx.exp(0).let { visit(it) } as Int?
+        val right = ctx.exp(1).let { visit(it) } as Int?
+
+        if (left == null || right == null) throw UndefinedVariableException(ctx)
 
         return left.toDouble().pow(right.toDouble()).toInt()
     }
 
     override fun visitUnaryExpr(ctx: LuaParser.UnaryExprContext?): Any? {
-        val value = visit(ctx?.exp())
-        val operator = ctx?.op?.type ?: -1
+        if (ctx == null) throw NullPointerException()
+
+        val value = ctx.exp().let { visit(it) } as Any?
+        val operator = ctx.op?.type ?: -1
 
         return when (operator) {
             LuaParser.NOT -> !(value as Boolean)
@@ -136,9 +139,14 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
     }
 
     override fun visitMulDivModuloExpr(ctx: LuaParser.MulDivModuloExprContext?): Any? {
-        val left = visit(ctx?.exp(0)) as Int
-        val right = visit(ctx?.exp(1)) as Int
-        val operator = ctx?.op?.type ?: -1
+        if (ctx == null) throw NullPointerException()
+
+        val left = ctx.exp(0).let { visit(it) } as Int?
+        val right = ctx.exp(1).let { visit(it) } as Int?
+        val operator = ctx.op?.type ?: -1
+
+        if (left == null || right == null) throw UndefinedVariableException(ctx)
+
 
         return when (operator) {
             LuaParser.STAR -> left * right
@@ -150,9 +158,13 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
     }
 
     override fun visitPlusMinusExpr(ctx: LuaParser.PlusMinusExprContext?): Any? {
-        val left = visit(ctx?.exp(0)) as Int
-        val right = visit(ctx?.exp(1)) as Int
-        val operator = ctx?.op?.type ?: -1
+        if (ctx == null) throw NullPointerException()
+
+        val left = ctx.exp(0).let { visit(it) } as Int?
+        val right = ctx.exp(1).let { visit(it) } as Int?
+        val operator = ctx.op?.type ?: -1
+
+        if (left == null || right == null) throw UndefinedVariableException(ctx)
 
         return when (operator) {
             LuaParser.PLUS -> left + right
@@ -162,9 +174,13 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
     }
 
     override fun visitBooleanBinaryLogicalExpr(ctx: LuaParser.BooleanBinaryLogicalExprContext?): Any? {
-        val left = visit(ctx?.exp(0)) as Int
-        val right = visit(ctx?.exp(1)) as Int
-        val operator = ctx?.op?.type ?: -1
+        if (ctx == null) throw NullPointerException()
+
+        val left = ctx.exp(0).let { visit(it) } as Int?
+        val right = ctx.exp(1).let { visit(it) } as Int?
+        val operator = ctx.op?.type ?: -1
+
+        if (left == null || right == null) throw UndefinedVariableException(ctx)
 
         return when (operator) {
             LuaParser.LT -> left < right
@@ -178,23 +194,36 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
     }
 
     override fun visitBooleanAndExpr(ctx: LuaParser.BooleanAndExprContext?): Any? {
-        val left = visit(ctx?.exp(0)) as Boolean
-        val right = visit(ctx?.exp(1)) as Boolean
+        if (ctx == null) throw NullPointerException()
+
+        val left = ctx.exp(0).let { visit(it) } as Boolean?
+        val right = ctx.exp(1).let { visit(it) } as Boolean?
+
+        if (left == null || right == null) throw UndefinedVariableException(ctx)
 
         return left && right
     }
 
     override fun visitBooleanOrExpr(ctx: LuaParser.BooleanOrExprContext?): Any? {
-        val left = visit(ctx?.exp(0)) as Boolean
-        val right = visit(ctx?.exp(1)) as Boolean
+        if (ctx == null) throw NullPointerException()
+
+        val left = ctx.exp(0).let { visit(it) } as Boolean?
+        val right = ctx.exp(1).let { visit(it) } as Boolean?
+
+        if (left == null || right == null) throw UndefinedVariableException(ctx)
 
         return left || right
     }
 
     override fun visitIntBinaryLogicalExpr(ctx: LuaParser.IntBinaryLogicalExprContext?): Any? {
-        val left = visit(ctx?.exp(0)) as Int
-        val right = visit(ctx?.exp(1)) as Int
-        val operator = ctx?.op?.type ?: -1
+        if (ctx == null) throw NullPointerException()
+
+        val left = ctx.exp(0).let { visit(it) } as Int?
+        val right = ctx.exp(1).let { visit(it) } as Int?
+        val operator = ctx.op?.type ?: -1
+
+        if (left == null || right == null) throw UndefinedVariableException(ctx)
+        
         return when (operator) {
             LuaParser.AMP -> left and right
             LuaParser.PIPE -> left or right

@@ -143,10 +143,9 @@ fun MainScreen() {
             parser.removeErrorListeners()
             parser.addErrorListener(CustomErrorListener(::handleScriptSyntaxError))
             val tree = parser.start_()
-            val walker = ParseTreeWalker()
-            val listener = EvalListener()
-            walker.walk(listener, tree)
-            println(listener.getVariables())
+            val visitor = EvalVisitor()
+            visitor.visit(tree)
+            println(visitor.getVariables())
         } catch (e: ParserError) {
             handleParserError(e)
         }

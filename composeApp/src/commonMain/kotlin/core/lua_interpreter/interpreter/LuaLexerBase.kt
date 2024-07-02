@@ -63,13 +63,4 @@ abstract class LuaLexerBase protected constructor(input: CharStream?) :
         else count = 0
         return count
     }
-    
-    /* removed by loloof64
-    public boolean IsLine1Col0()
-    {
-        CharStream cs = (CharStream)_input;
-        if (cs.index() == 1) return true;
-        return false;
-    }
-    */
 }

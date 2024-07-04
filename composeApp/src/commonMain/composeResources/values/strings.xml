@@ -10,7 +10,12 @@
     <string name="open_error">Failed to open file !</string>
     <string name="execute">Execute</string>
 
-    <string name="parser_error_location">Position %1$d:%2$d</string>
+    <string name="ok_button">Ok</string>
+
+    <string name="errors_list_title">Errors list</string>
+    <string name="error_position_label">Position</string>
+    <string name="error_description_label">Description</string>
+
     <string name="parser_error_unrecognized_token">Symbol not recognized (%1$s) !</string>
     <string name="parser_error_wrong_token">Wrong symbol (%1$s) : expecting (%2$s) !</string>
     <string name="parser_error_undefined_variable">Undefined variable (%1$s) !</string>

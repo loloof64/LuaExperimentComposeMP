@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import core.lua_interpreter.interpreter.*
 import kotlinx.coroutines.launch
@@ -21,6 +22,8 @@ import luaexperiment.composeapp.generated.resources.*
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.jetbrains.compose.resources.stringResource
+import ui.composables.summaries.ErrorsSummaries
+import ui.composables.summaries.SummaryLineValues
 
 @Composable
 fun MainScreen() {
@@ -28,12 +31,14 @@ fun MainScreen() {
     var textContent by rememberSaveable { mutableStateOf(TextFieldValue()) }
     var saveFilename by rememberSaveable { mutableStateOf("example.txt") }
 
+    var errorsDialogOpened by rememberSaveable { mutableStateOf(false) }
+    val errorsToShow by rememberSaveable { mutableStateOf<MutableList<SummaryLineValues>>(mutableListOf()) }
+
     val saveErrorString = stringResource(Res.string.save_error)
     val saveSuccessString = stringResource(Res.string.save_success)
     val openErrorString = stringResource(Res.string.open_error)
     val openSuccessString = stringResource(Res.string.open_success)
 
-    val luaParserErrorLocationString = stringResource(Res.string.parser_error_location)
     val luaMiscErrorString = stringResource(Res.string.parser_error_misc)
     val luaMiscErrorUnknownTokenString = stringResource(Res.string.parser_error_misc_unknown_token)
     val luaUnrecognizedTokenExceptionString = stringResource(Res.string.parser_error_unrecognized_token)
@@ -104,20 +109,18 @@ fun MainScreen() {
     }
 
     fun handleParserError(error: ParserError) {
-        val messagePart1 = when (error) {
+        val description = when (error) {
             is UndefinedVariableException -> luaUndefinedVariableExceptionString.format(error.getFaultySource())
             is MissingSomeStatementBlocksInIfExpressionException -> luaIfStatementMissingAtLeastOneBlockString
             is InvalidAssignementStatementException -> luaAssignementExceptionString
         }
-        val messagePart2 = luaParserErrorLocationString.format(
-            error.getStartLine(),
-            error.getStartColumn(),
-        )
-        println("$messagePart2 => $messagePart1")
+        val position = "${error.getStartLine()}:${error.getStartColumn()}"
+
+        errorsToShow.add(listOf(position, description))
     }
 
     fun handleScriptSyntaxError(message: String, token: String, line: Int, column: Int) {
-        val messagePart1 = when {
+        val description = when {
             message.contains("mismatched input") -> {
                 val messageParts = message.split("expecting ")
                 val expectedToken = messageParts[1]
@@ -148,19 +151,18 @@ fun MainScreen() {
 
             else -> luaMiscErrorString.format(token)
         }
-        val messagePart2 = luaParserErrorLocationString.format(
-            line,
-            column,
-        )
-        println("$messagePart2 => $messagePart1")
+        val position = "$line:$column"
+
+        errorsToShow.add(listOf(position, description))
     }
 
     fun handleMiscError(ex: Exception) {
-        println(luaMiscErrorUnknownTokenString)
+        errorsToShow.add(listOf("", luaMiscErrorUnknownTokenString))
         ex.printStackTrace()
     }
 
     fun executeScript() {
+        errorsToShow.clear()
         try {
             val input = CharStreams.fromString(textContent.text)
             val lexer = LuaLexer(input)
@@ -173,11 +175,17 @@ fun MainScreen() {
             val tree = parser.start_()
             val visitor = EvalVisitor()
             visitor.visit(tree)
-            println(visitor.getVariables())
+            if (errorsToShow.isNotEmpty()) {
+                errorsDialogOpened = true
+            } else {
+                println(visitor.getVariables())
+            }
         } catch (e: ParserError) {
             handleParserError(e)
+            errorsDialogOpened = true
         } catch (e: Exception) {
             handleMiscError(e)
+            errorsDialogOpened = true
         }
     }
 
@@ -202,7 +210,11 @@ fun MainScreen() {
                 value = textContent,
                 onValueChange = ::handleTextChange
             )
-            Text(cursorPosition, modifier = Modifier.fillMaxWidth().padding(4.dp))
+            Text(cursorPosition, modifier = Modifier.fillMaxWidth().padding(4.dp), textAlign = TextAlign.End)
+        }
+
+        if (errorsDialogOpened) {
+            ErrorsSummaries(onDismiss = { errorsDialogOpened = false }, values = errorsToShow)
         }
     }
 }

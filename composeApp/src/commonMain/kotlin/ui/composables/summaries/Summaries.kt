@@ -14,6 +14,9 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +26,27 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 typealias SummaryLineValues = List<String>
+
+/* =========================================================
+private val topSseparator = "@@@"
+private val innerSeparator = "###"
+
+val summaryLineValuesSaver = Saver<MutableState<MutableList<SummaryLineValues>>, String>(
+    save = { mutableState ->
+        mutableState.value.joinToString(topSseparator) { line ->
+            line.joinToString(innerSeparator)
+        }
+    },
+    restore = { savedState ->
+        mutableStateOf(
+            savedState.split(topSseparator).map { line ->
+                line.split(innerSeparator)
+            }.toMutableList()
+        )
+    }
+)
+============================================================
+*/
 
 sealed class SummaryColumnSize
 

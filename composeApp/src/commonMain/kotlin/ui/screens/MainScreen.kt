@@ -24,15 +24,17 @@ import org.antlr.v4.runtime.CommonTokenStream
 import org.jetbrains.compose.resources.stringResource
 import ui.composables.summaries.ErrorsSummaries
 import ui.composables.summaries.SummaryLineValues
+import ui.getCursorPosition
+import ui.textFieldValueSaver
 
 @Composable
 fun MainScreen() {
 
-    var textContent by rememberSaveable { mutableStateOf(TextFieldValue()) }
+    var textContent by rememberSaveable(saver = textFieldValueSaver) { mutableStateOf(TextFieldValue()) }
     var saveFilename by rememberSaveable { mutableStateOf("example.txt") }
 
     var errorsDialogOpened by rememberSaveable { mutableStateOf(false) }
-    val errorsToShow by rememberSaveable { mutableStateOf<MutableList<SummaryLineValues>>(mutableListOf()) }
+    val errorsToShow by rememberSaveable { mutableStateOf(mutableListOf<SummaryLineValues>()) }
 
     val saveErrorString = stringResource(Res.string.save_error)
     val saveSuccessString = stringResource(Res.string.save_success)
@@ -52,23 +54,8 @@ fun MainScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
 
     val cursorPosition = remember(textContent) {
-        val lines = textContent.text.split("\n")
-        val cursorPosition = textContent.selection.min
-
-        var currentLength = 0
-        var line = 1
-        var column = cursorPosition + 1
-
-        for (lineText in lines) {
-            if (currentLength + lineText.length + 1 > cursorPosition) {
-                column = cursorPosition - currentLength + 1
-                break
-            }
-            currentLength += lineText.length + 1
-            line++
-        }
-
-        "$line:$column"
+        val position = getCursorPosition(textContent)
+        "${position.line}:${position.column}"
     }
 
 

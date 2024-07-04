@@ -11,20 +11,21 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import core.lua_interpreter.interpreter.*
 import kotlinx.coroutines.launch
 import luaexperiment.composeapp.generated.resources.*
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.tree.ParseTreeWalker
-import org.jetbrains.compose.resources.*
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun MainScreen() {
 
-    var textContent by rememberSaveable { mutableStateOf("") }
+    var textContent by rememberSaveable { mutableStateOf(TextFieldValue()) }
     var saveFilename by rememberSaveable { mutableStateOf("example.txt") }
 
     val saveErrorString = stringResource(Res.string.save_error)
@@ -45,6 +46,26 @@ fun MainScreen() {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val cursorPosition = remember(textContent) {
+        val lines = textContent.text.split("\n")
+        val cursorPosition = textContent.selection.min
+
+        var currentLength = 0
+        var line = 1
+        var column = cursorPosition + 1
+
+        for (lineText in lines) {
+            if (currentLength + lineText.length + 1 > cursorPosition) {
+                column = cursorPosition - currentLength + 1
+                break
+            }
+            currentLength += lineText.length + 1
+            line++
+        }
+
+        "$line:$column"
+    }
+
 
     fun handleSaveSuccess(newFilename: String) {
         saveFilename = newFilename
@@ -61,7 +82,7 @@ fun MainScreen() {
     }
 
     fun handleOpenSuccess(content: String) {
-        textContent = content
+        textContent = TextFieldValue(content)
         scope.launch {
             snackbarHostState.showSnackbar(openSuccessString)
         }
@@ -76,9 +97,9 @@ fun MainScreen() {
 
     fun getSuggestedSaveFilename(): String = saveFilename
 
-    fun getContentToSave(): String = textContent
+    fun getContentToSave(): String = textContent.text
 
-    fun handleTextChange(newValue: String) {
+    fun handleTextChange(newValue: TextFieldValue) {
         textContent = newValue
     }
 
@@ -110,6 +131,7 @@ fun MainScreen() {
                 else messagePartsV2.drop(1).first()
                 luaWrongTokenExceptionString.format(token, expectedToken)
             }
+
             message.contains("missing NAME at ") -> {
                 luaAssignementExceptionString
             }
@@ -140,7 +162,7 @@ fun MainScreen() {
 
     fun executeScript() {
         try {
-            val input = CharStreams.fromString(textContent)
+            val input = CharStreams.fromString(textContent.text)
             val lexer = LuaLexer(input)
             lexer.removeErrorListeners()
             lexer.addErrorListener(CustomErrorListener(::handleScriptSyntaxError))
@@ -170,11 +192,18 @@ fun MainScreen() {
             executeScript = ::executeScript,
         )
     }) {
-        TextField(
+        Column(
             modifier = Modifier.padding(it).fillMaxSize(),
-            value = textContent,
-            onValueChange = ::handleTextChange
-        )
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.Top
+        ) {
+            TextField(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                value = textContent,
+                onValueChange = ::handleTextChange
+            )
+            Text(cursorPosition, modifier = Modifier.fillMaxWidth().padding(4.dp))
+        }
     }
 }
 

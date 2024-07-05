@@ -20,6 +20,7 @@ There's two predefined variables that you can use :
 * age => a random integer between 0 and 120
 * female => true if the person is a female
 
+You can also insert them by clicking on the list shown when you click on the FAB button.
 
 ## Credits
 

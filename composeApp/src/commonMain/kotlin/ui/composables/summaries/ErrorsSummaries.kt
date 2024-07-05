@@ -14,6 +14,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import luaexperiment.composeapp.generated.resources.Res
+import luaexperiment.composeapp.generated.resources.error_description_label
+import luaexperiment.composeapp.generated.resources.error_position_label
 import luaexperiment.composeapp.generated.resources.ok_button
 import org.jetbrains.compose.resources.stringResource
 
@@ -21,6 +23,8 @@ import org.jetbrains.compose.resources.stringResource
 fun ErrorsSummaries(values: List<SummaryLineValues>, onDismiss: () -> Unit) {
 
     val okString = stringResource(Res.string.ok_button)
+    val positionString = stringResource(Res.string.error_position_label)
+    val descriptionString = stringResource(Res.string.error_description_label)
     var errorDetailsDialogOpened by rememberSaveable { mutableStateOf(false) }
     var errorDetailsMessage by rememberSaveable { mutableStateOf("") }
 
@@ -37,7 +41,7 @@ fun ErrorsSummaries(values: List<SummaryLineValues>, onDismiss: () -> Unit) {
         text = {
             SummaryTable(
                 modifier = Modifier.fillMaxWidth(),
-                header = listOf("Position", "Description"),
+                header = listOf(positionString, descriptionString),
                 lines = values,
                 columnSizes = listOf(Fixed(80.dp), Weight(1f)),
                 onCellSelected = {columnIndex, lineContent ->

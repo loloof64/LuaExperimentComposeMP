@@ -101,7 +101,7 @@ fun MainScreen() {
             is MissingSomeStatementBlocksInIfExpressionException -> luaIfStatementMissingAtLeastOneBlockString
             is InvalidAssignementStatementException -> luaAssignementExceptionString
         }
-        val position = "${error.getStartLine()}:${error.getStartColumn()}"
+        val position = "${error.getStartLine()}:${error.getStartColumn()+1}"
 
         errorsToShow.add(listOf(position, description))
     }

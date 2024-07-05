@@ -44,6 +44,9 @@ fun SummaryTable(
     header: SummaryLineValues?,
     lines: List<SummaryLineValues>,
     columnSizes: List<SummaryColumnSize>,
+    commonHeight: Dp = 35.dp,
+    softWrap: Boolean = false,
+    overflow: TextOverflow = TextOverflow.Ellipsis,
     onCellSelected: (Int, SummaryLineValues) -> Unit = { _columnIndex, _content: SummaryLineValues -> }
 ) {
     LazyColumn(modifier = modifier) {
@@ -54,7 +57,10 @@ fun SummaryTable(
         }
 
         items(lines) { currentLine ->
-            SummaryLine(content = currentLine, columnSizes = columnSizes, onCellSelected = onCellSelected)
+            SummaryLine(
+                content = currentLine, columnSizes = columnSizes, onCellSelected = onCellSelected, softWrap = softWrap,
+                overflow = overflow, commonHeight = commonHeight,
+            )
         }
     }
 }
@@ -91,6 +97,8 @@ fun SummaryLine(
     textColor: Color = MaterialTheme.colors.primary,
     linesColor: Color = MaterialTheme.colors.secondary,
     commonHeight: Dp = 35.dp,
+    softWrap: Boolean = false,
+    overflow: TextOverflow = TextOverflow.Ellipsis,
     onCellSelected: (Int, SummaryLineValues) -> Unit = { _columnIndex, _content: SummaryLineValues -> }
 ) {
     SummaryContentBase(
@@ -103,6 +111,8 @@ fun SummaryLine(
         contentAlignment = TextAlign.Start,
         fontWeight = FontWeight.Medium,
         commonHeight = commonHeight,
+        softWrap = softWrap,
+        overflow = overflow,
         onCellSelected = onCellSelected,
     )
 }
@@ -118,6 +128,8 @@ private fun SummaryContentBase(
     fontWeight: FontWeight,
     linesColor: Color,
     commonHeight: Dp,
+    softWrap: Boolean = false,
+    overflow: TextOverflow = TextOverflow.Ellipsis,
     onCellSelected: (Int, SummaryLineValues) -> Unit = { _columnIndex, _content: SummaryLineValues -> }
 ) {
     Row(modifier = modifier) {
@@ -142,8 +154,8 @@ private fun SummaryContentBase(
                     color = textColor,
                     fontWeight = fontWeight,
                     textAlign = contentAlignment,
-                    softWrap = false,
-                    overflow = TextOverflow.Ellipsis
+                    softWrap = softWrap,
+                    overflow = overflow
                 )
             }
         }

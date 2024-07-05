@@ -32,6 +32,7 @@ Some images have been downloaded from SvgRepo and converted with [SvgToCompose](
 * save => https://www.svgrepo.com/svg/512798/save-item-1411
 * open => https://www.svgrepo.com/svg/501288/open-folder
 * execute => https://www.svgrepo.com/svg/366123/execute
+* book => https://www.svgrepo.com/svg/513272/book-closed
 
 ### Lua Antlr4 grammar
 

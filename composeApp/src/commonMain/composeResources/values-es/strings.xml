@@ -11,6 +11,7 @@
     <string name="execute">Ejecutar</string>
 
     <string name="ok_button">De acuerdo</string>
+    <string name="cancel_button">Anular</string>
 
     <string name="errors_list_title">Lista de errores</string>
     <string name="error_position_label">Posición</string>
@@ -31,4 +32,12 @@
 
     <string name="variable_name_label">Nombre</string>
     <string name="variable_value_label">Valor</string>
+    <string name="variable_type_label">Tipo</string>
+    <string name="variable_description_label">Descripción</string>
+    <string name="variable_type_integer">Entero</string>
+    <string name="variable_type_boolean">Booleano</string>
+    <string name="book_action_description">Insertar una variable predefinida</string>
+
+    <string name="variable_age_description">Edad de la persona.</string>
+    <string name="variable_female_description">Género de la persona: verdadero si es señora.</string>
 </resources>

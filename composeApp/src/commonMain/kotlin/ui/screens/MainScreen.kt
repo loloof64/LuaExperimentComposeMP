@@ -1,5 +1,6 @@
 package ui.screens
 
+import Book
 import Execute
 import LuaLexer
 import LuaParser
@@ -13,6 +14,9 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -25,6 +29,7 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.jetbrains.compose.resources.stringResource
 import ui.composables.summaries.ErrorsSummaries
+import ui.composables.summaries.PredefinedVariablesSummary
 import ui.composables.summaries.ResultSummary
 import ui.composables.summaries.SummaryLineValues
 import ui.getCursorPosition
@@ -38,8 +43,9 @@ fun MainScreen() {
 
     var errorsDialogOpened by rememberSaveable { mutableStateOf(false) }
     val errorsToShow by rememberSaveable { mutableStateOf(mutableListOf<SummaryLineValues>()) }
-    var resultSummaryOpened by rememberSaveable{ mutableStateOf(false) }
-    val resultsToShow by rememberSaveable{ mutableStateOf(mutableListOf<SummaryLineValues>()) }
+    var resultSummaryOpened by rememberSaveable { mutableStateOf(false) }
+    val resultsToShow by rememberSaveable { mutableStateOf(mutableListOf<SummaryLineValues>()) }
+    var predefinedVariablesSummaryOpened by rememberSaveable { mutableStateOf(false) }
 
     val saveErrorString = stringResource(Res.string.save_error)
     val saveSuccessString = stringResource(Res.string.save_success)
@@ -58,8 +64,26 @@ fun MainScreen() {
     val errorVariableNameString = stringResource(Res.string.parser_error_variable)
     val errorIntegerString = stringResource(Res.string.parser_error_integer)
 
+    val variableNameString = stringResource(Res.string.variable_name_label)
+    val variableTypeString = stringResource(Res.string.variable_type_label)
+    val variableDescriptionString = stringResource(Res.string.variable_description_label)
+
+    val variableTypeIntegerString = stringResource(Res.string.variable_type_integer)
+    val variableTypeIntegerBoolean = stringResource(Res.string.variable_type_boolean)
+
+    val variableAgeDescription = stringResource(Res.string.variable_age_description)
+    val variableFemaleDescription = stringResource(Res.string.variable_female_description)
+
+    val bookActionDescription = stringResource(Res.string.book_action_description)
+
+    val predefinedVariablesToShow = listOf(
+        listOf("age", variableTypeIntegerString, variableAgeDescription),
+        listOf("female", variableTypeIntegerBoolean, variableFemaleDescription),
+    )
+
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val focusRequester = remember { FocusRequester() }
 
     val cursorPosition = remember(textContent) {
         val position = getCursorPosition(textContent)
@@ -184,7 +208,7 @@ fun MainScreen() {
             if (errorsToShow.isNotEmpty()) {
                 errorsDialogOpened = true
             } else {
-                visitor.getVariables().toSortedMap().forEach{current ->
+                visitor.getVariables().toSortedMap().forEach { current ->
                     resultsToShow.add(listOf(current.key, current.value.toString()))
                 }
                 resultSummaryOpened = true
@@ -198,6 +222,22 @@ fun MainScreen() {
         }
     }
 
+    fun insertVariableName(name: String) {
+        predefinedVariablesSummaryOpened = false
+
+        val currentText = textContent.text
+        val selection = textContent.selection
+        val newText = currentText.substring(0, selection.start) + name +
+            currentText.substring(selection.end)
+        val newCursorPosition = selection.start + name.length
+
+        textContent = textContent.copy(
+            text = newText,
+            selection = TextRange(newCursorPosition)
+        )
+        focusRequester.requestFocus()
+    }
+
     Scaffold(topBar = {
         AppBar(
             getSuggestedSaveFileName = ::getSuggestedSaveFilename,
@@ -208,6 +248,14 @@ fun MainScreen() {
             onOpenError = ::handleOpenError,
             executeScript = ::executeScript,
         )
+    }, floatingActionButton = {
+        IconButton(
+            onClick = {
+                predefinedVariablesSummaryOpened = true
+            }
+        ) {
+            Icon(modifier = Modifier.size(50.dp), imageVector = Book, contentDescription = bookActionDescription)
+        }
     }) {
         Column(
             modifier = Modifier.padding(it).fillMaxSize(),
@@ -215,7 +263,7 @@ fun MainScreen() {
             verticalArrangement = Arrangement.Top
         ) {
             TextField(
-                modifier = Modifier.weight(1f).fillMaxWidth(),
+                modifier = Modifier.weight(1f).fillMaxWidth().focusRequester(focusRequester),
                 value = textContent,
                 onValueChange = ::handleTextChange
             )
@@ -227,7 +275,14 @@ fun MainScreen() {
         }
 
         if (resultSummaryOpened) {
-            ResultSummary(onDismiss = { resultSummaryOpened = false}, values = resultsToShow)
+            ResultSummary(onDismiss = { resultSummaryOpened = false }, values = resultsToShow)
+        }
+        if (predefinedVariablesSummaryOpened) {
+            PredefinedVariablesSummary(
+                onDismiss = { predefinedVariablesSummaryOpened = false },
+                values = predefinedVariablesToShow,
+                insertVariableName = ::insertVariableName
+            )
         }
     }
 }

@@ -2,6 +2,7 @@ package core.lua_interpreter.interpreter
 
 import LuaBaseVisitor
 import LuaParser
+import core.lua_interpreter.PredefinedVariable
 import org.antlr.v4.runtime.*
 import kotlin.math.pow
 
@@ -49,7 +50,7 @@ data class MissingSomeStatementBlocksInIfExpressionException(override val contex
 
 data class InvalidAssignementStatementException(override val context: ParserRuleContext) : ParserError(context)
 
-class EvalVisitor : LuaBaseVisitor<Any?>() {
+class EvalVisitor(val predefinedValues: List<PredefinedVariable> = listOf()) : LuaBaseVisitor<Any?>() {
 
     fun getVariables() = variables.toMap()
 
@@ -256,5 +257,9 @@ class EvalVisitor : LuaBaseVisitor<Any?>() {
         return visit(ctx) as? Boolean ?: false
     }
 
-    private val variables = mutableMapOf<String, Any?>()
+    private val variables = mutableMapOf<String, Any?>().apply {
+        for (variable in predefinedValues) {
+            this[variable.name] = variable.value
+        }
+    }
 }

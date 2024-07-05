@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import core.lua_interpreter.PredifinedBoolean
+import core.lua_interpreter.PredifinedInt
 import core.lua_interpreter.interpreter.*
 import kotlinx.coroutines.launch
 import luaexperiment.composeapp.generated.resources.*
@@ -162,6 +164,11 @@ fun MainScreen() {
         errorsToShow.clear()
         resultsToShow.clear()
 
+        val predefinedValues = listOf(
+            PredifinedInt.generate("age", 0..120),
+            PredifinedBoolean.generate("female")
+        )
+
         try {
             val input = CharStreams.fromString(textContent.text)
             val lexer = LuaLexer(input)
@@ -172,7 +179,7 @@ fun MainScreen() {
             parser.removeErrorListeners()
             parser.addErrorListener(CustomErrorListener(::handleScriptSyntaxError))
             val tree = parser.start_()
-            val visitor = EvalVisitor()
+            val visitor = EvalVisitor(predefinedValues)
             visitor.visit(tree)
             if (errorsToShow.isNotEmpty()) {
                 errorsDialogOpened = true

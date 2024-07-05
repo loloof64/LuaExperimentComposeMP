@@ -1,6 +1,9 @@
 package ui.composables.summaries
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
@@ -13,6 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import luaexperiment.composeapp.generated.resources.*
 import luaexperiment.composeapp.generated.resources.Res
 import luaexperiment.composeapp.generated.resources.error_description_label
 import luaexperiment.composeapp.generated.resources.error_position_label
@@ -25,6 +29,7 @@ fun ErrorsSummaries(values: List<SummaryLineValues>, onDismiss: () -> Unit) {
     val okString = stringResource(Res.string.ok_button)
     val positionString = stringResource(Res.string.error_position_label)
     val descriptionString = stringResource(Res.string.error_description_label)
+    val headingMessage = stringResource(Res.string.errors_heading_message)
     var errorDetailsDialogOpened by rememberSaveable { mutableStateOf(false) }
     var errorDetailsMessage by rememberSaveable { mutableStateOf("") }
 
@@ -39,18 +44,22 @@ fun ErrorsSummaries(values: List<SummaryLineValues>, onDismiss: () -> Unit) {
             }
         },
         text = {
-            SummaryTable(
-                modifier = Modifier.fillMaxWidth(),
-                header = listOf(positionString, descriptionString),
-                lines = values,
-                columnSizes = listOf(Fixed(80.dp), Weight(1f)),
-                onCellSelected = {columnIndex, lineContent ->
-                    if (columnIndex == 1) {
-                        errorDetailsMessage = "${lineContent.first()}\n${lineContent.last()}"
-                        errorDetailsDialogOpened = true
+            Column {
+                Text(headingMessage)
+                Spacer(modifier = Modifier.height(8.dp))
+                SummaryTable(
+                    modifier = Modifier.fillMaxWidth(),
+                    header = listOf(positionString, descriptionString),
+                    lines = values,
+                    columnSizes = listOf(Fixed(80.dp), Weight(1f)),
+                    onCellSelected = {columnIndex, lineContent ->
+                        if (columnIndex == 1) {
+                            errorDetailsMessage = "${lineContent.first()}\n${lineContent.last()}"
+                            errorDetailsDialogOpened = true
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     )
 

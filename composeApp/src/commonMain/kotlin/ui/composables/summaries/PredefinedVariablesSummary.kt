@@ -1,6 +1,9 @@
 package ui.composables.summaries
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
@@ -25,6 +28,7 @@ fun PredefinedVariablesSummary(
     val variableNameString = stringResource(Res.string.variable_name_label)
     val variableType = stringResource(Res.string.variable_type_label)
     val variableDescription = stringResource(Res.string.variable_description_label)
+    val headingMessage = stringResource(Res.string.predefined_variables_heading_message)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -37,17 +41,21 @@ fun PredefinedVariablesSummary(
             }
         },
         text = {
-            SummaryTable(
-                modifier = Modifier.fillMaxWidth(),
-                header = listOf(variableNameString, variableType, variableDescription),
-                lines = values,
-                columnSizes = listOf(Weight(1.3f), Weight(1f), Weight(3f)),
-                onCellSelected = { columnIndex, lineValues ->
-                    insertVariableName(lineValues[0])
-                },
-                softWrap = true,
-                commonHeight = 40.dp,
-            )
+            Column {
+                Text(headingMessage)
+                Spacer(modifier = Modifier.height(8.dp))
+                SummaryTable(
+                    modifier = Modifier.fillMaxWidth(),
+                    header = listOf(variableNameString, variableType, variableDescription),
+                    lines = values,
+                    columnSizes = listOf(Weight(1.3f), Weight(1f), Weight(3f)),
+                    onCellSelected = { columnIndex, lineValues ->
+                        insertVariableName(lineValues[0])
+                    },
+                    softWrap = true,
+                    commonHeight = 40.dp,
+                )
+            }
         }
     )
 }

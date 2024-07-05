@@ -40,4 +40,8 @@
 
     <string name="variable_age_description">Âge de la personne.</string>
     <string name="variable_female_description">Genre de la personne : true si c'est une féminine.</string>
+
+    <string name="errors_heading_message">Erreurs d'interprétation (cliquez sur case description pour en voir le détail).</string>
+    <string name="results_heading_message">Voici les valeurs résultants de l'interprétation.</string>
+    <string name="predefined_variables_heading_message">Voici les variables prédéfines et qui ont valeurs aléatoires (cliquez sur une ligne de variable pour l'insérer dans votre code).</string>
 </resources>

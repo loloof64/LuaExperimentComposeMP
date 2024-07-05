@@ -39,4 +39,8 @@
 
     <string name="variable_age_description">Age of the person.</string>
     <string name="variable_female_description">Gender of the person : true if is a female.</string>
+
+    <string name="errors_heading_message">Interpretations errors (click on a description cell in order to see details).</string>
+    <string name="results_heading_message">These are values resulting from your script interpretation.</string>
+    <string name="predefined_variables_heading_message">These are the predefined variables whose are random values (click on variable line in order to insert it in your code).</string>
 </resources>

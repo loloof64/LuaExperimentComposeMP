@@ -40,4 +40,8 @@
 
     <string name="variable_age_description">Edad de la persona.</string>
     <string name="variable_female_description">Género de la persona: verdadero si es señora.</string>
+
+    <string name="errors_heading_message">Errores de interpretación (haga clic en una celda de descripción para ver detalles).</string>
+    <string name="results_heading_message">Estos son valores resultantes de la interpretación de su código.</string>
+    <string name="predefined_variables_heading_message">Estas son las variables predefinidas quienes son valores aleatorios (haga clic en la línea de la variable para insertarla en su código).</string>
 </resources>

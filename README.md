@@ -4,7 +4,7 @@ A simple experiment with [Lua language](https://www.lua.org/) in Jetpack Compose
 
 
 
-![Demonstration](https://github.com/loloof64/LuaExperimentComposeMP/assets/1826495/e01656ef-1d47-4cfb-ae2e-d8e3af47033d)
+[Demonstration](https://github.com/loloof64/LuaExperimentComposeMP/assets/1826495/e01656ef-1d47-4cfb-ae2e-d8e3af47033d)
 
 
 

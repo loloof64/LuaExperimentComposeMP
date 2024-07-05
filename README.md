@@ -2,6 +2,10 @@
 
 A simple experiment with [Lua language](https://www.lua.org/) in Jetpack Compose Multiplatform.
 
+## Language
+
+### Limitations
+
 This is a parser for a tiny subset of the Lua language, where :
 * strings have been removed
 * floats have been removed
@@ -9,6 +13,13 @@ This is a parser for a tiny subset of the Lua language, where :
 * tables have been removed
 * loop instructions have been removed
 * functions have been removed
+
+### Predefined variables
+
+There's two predefined variables that you can use :
+* age => a random integer between 0 and 120
+* female => true if the person is a female
+
 
 ## Credits
 

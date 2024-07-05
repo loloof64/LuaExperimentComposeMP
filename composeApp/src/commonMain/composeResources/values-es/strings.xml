@@ -17,12 +17,15 @@
     <string name="error_description_label">Descripción</string>
 
     <string name="parser_error_unrecognized_token">¡Símbolo no reconocido (%1$s)!</string>
-    <string name="parser_error_wrong_token">¡Símbolo incorrecto (%1$s): esperando (%2$s)!</string>
-    <string name="parser_error_undefined_variable">¡Variable no definida (%1$s) !</string>
+    <string name="parser_error_undefined_variable">¡Variable no definida en instrucción '%1$s' !</string>
     <string name="parser_error_misc">¡Error varios (%1$s)!</string>
     <string name="parser_error_misc_unknown_token">¡Error varios!</string>
     <string name="parser_error_wrong_token_alternatives">¡Símbolo no reconocido (%1$s): esperando uno entre (%2$s)!</string>
     <string name="parser_error_missing_statements_block">¡Lla declaración 'if' le falta al menos un bloque de declaraciones o condición!</string>
     <string name="parser_error_invalid_assignements">¡Declaración de asignación no válida!</string>
     <string name="parser_error_not_a_statements_block">¡La declaración 'if' tiene al menos una rama que no es un bloque de declaraciones!</string>
+
+    <string name="parser_error_eof">#FinDelDocumento#</string>
+    <string name="parser_error_variable">#NombreDeUnaVariable#</string>
+    <string name="parser_error_integer">#Entero#</string>
 </resources>

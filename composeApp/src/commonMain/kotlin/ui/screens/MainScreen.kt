@@ -44,11 +44,14 @@ fun MainScreen() {
     val luaMiscErrorString = stringResource(Res.string.parser_error_misc)
     val luaMiscErrorUnknownTokenString = stringResource(Res.string.parser_error_misc_unknown_token)
     val luaUnrecognizedTokenExceptionString = stringResource(Res.string.parser_error_unrecognized_token)
-    val luaWrongTokenExceptionString = stringResource(Res.string.parser_error_wrong_token)
     val luaUndefinedVariableExceptionString = stringResource(Res.string.parser_error_undefined_variable)
     val luaWrongTokenExceptionAlternativesString = stringResource(Res.string.parser_error_wrong_token_alternatives)
     val luaIfStatementMissingAtLeastOneBlockString = stringResource(Res.string.parser_error_missing_statements_block)
     val luaAssignementExceptionString = stringResource(Res.string.parser_error_invalid_assignements)
+
+    val errorEOFString = stringResource(Res.string.parser_error_eof)
+    val errorVariableNameString = stringResource(Res.string.parser_error_variable)
+    val errorIntegerString = stringResource(Res.string.parser_error_integer)
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -100,8 +103,10 @@ fun MainScreen() {
             is UndefinedVariableException -> luaUndefinedVariableExceptionString.format(error.getFaultySource())
             is MissingSomeStatementBlocksInIfExpressionException -> luaIfStatementMissingAtLeastOneBlockString
             is InvalidAssignementStatementException -> luaAssignementExceptionString
-        }
-        val position = "${error.getStartLine()}:${error.getStartColumn()+1}"
+        }.replace("<EOF>", errorEOFString)
+            .replace("NAME", errorVariableNameString)
+            .replace("INT", errorIntegerString)
+        val position = "${error.getStartLine()}:${error.getStartColumn() + 1}"
 
         errorsToShow.add(listOf(position, description))
     }
@@ -119,7 +124,7 @@ fun MainScreen() {
                 val messagePartsV2 = message.split("expecting ") // for <EOF>
                 val expectedToken = if (messagePartsV1.size > 1) messagePartsV1.drop(1).first().dropLast(1)
                 else messagePartsV2.drop(1).first()
-                luaWrongTokenExceptionString.format(token, expectedToken)
+                luaWrongTokenExceptionAlternativesString.format(token, expectedToken)
             }
 
             message.contains("missing NAME at ") -> {
@@ -129,7 +134,7 @@ fun MainScreen() {
             message.contains("missing '") -> {
                 val messageParts = message.split("missing '")
                 val expectedToken = messageParts.drop(1).first().split("'").first()
-                luaWrongTokenExceptionString.format(token, expectedToken)
+                luaWrongTokenExceptionAlternativesString.format(token, expectedToken)
             }
 
             message.contains("token recognition error at") -> {
@@ -137,7 +142,9 @@ fun MainScreen() {
             }
 
             else -> luaMiscErrorString.format(token)
-        }
+        }.replace("<EOF>", errorEOFString)
+            .replace("NAME", errorVariableNameString)
+            .replace("INT", errorIntegerString)
         val position = "$line:$column"
 
         errorsToShow.add(listOf(position, description))

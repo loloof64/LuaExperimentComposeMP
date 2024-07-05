@@ -23,6 +23,7 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.jetbrains.compose.resources.stringResource
 import ui.composables.summaries.ErrorsSummaries
+import ui.composables.summaries.ResultSummary
 import ui.composables.summaries.SummaryLineValues
 import ui.getCursorPosition
 import ui.textFieldValueSaver
@@ -35,6 +36,8 @@ fun MainScreen() {
 
     var errorsDialogOpened by rememberSaveable { mutableStateOf(false) }
     val errorsToShow by rememberSaveable { mutableStateOf(mutableListOf<SummaryLineValues>()) }
+    var resultSummaryOpened by rememberSaveable{ mutableStateOf(false) }
+    val resultsToShow by rememberSaveable{ mutableStateOf(mutableListOf<SummaryLineValues>()) }
 
     val saveErrorString = stringResource(Res.string.save_error)
     val saveSuccessString = stringResource(Res.string.save_success)
@@ -157,6 +160,8 @@ fun MainScreen() {
 
     fun executeScript() {
         errorsToShow.clear()
+        resultsToShow.clear()
+
         try {
             val input = CharStreams.fromString(textContent.text)
             val lexer = LuaLexer(input)
@@ -172,7 +177,10 @@ fun MainScreen() {
             if (errorsToShow.isNotEmpty()) {
                 errorsDialogOpened = true
             } else {
-                println(visitor.getVariables())
+                visitor.getVariables().forEach{current ->
+                    resultsToShow.add(listOf(current.key, current.value.toString()))
+                }
+                resultSummaryOpened = true
             }
         } catch (e: ParserError) {
             handleParserError(e)
@@ -209,6 +217,10 @@ fun MainScreen() {
 
         if (errorsDialogOpened) {
             ErrorsSummaries(onDismiss = { errorsDialogOpened = false }, values = errorsToShow)
+        }
+
+        if (resultSummaryOpened) {
+            ResultSummary(onDismiss = { resultSummaryOpened = false}, values = resultsToShow)
         }
     }
 }

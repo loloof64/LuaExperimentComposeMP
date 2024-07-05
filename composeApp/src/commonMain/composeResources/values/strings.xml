@@ -27,4 +27,7 @@
     <string name="parser_error_eof">#EndOfFile#</string>
     <string name="parser_error_variable">#VariableName#</string>
     <string name="parser_error_integer">#Integer#</string>
+
+    <string name="variable_name_label">Name</string>
+    <string name="variable_value_label">Value</string>
 </resources>

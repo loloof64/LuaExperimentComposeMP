@@ -28,4 +28,7 @@
     <string name="parser_error_eof">#FinDeFichier#</string>
     <string name="parser_error_variable">#NomDeVariable#</string>
     <string name="parser_error_integer">#Entier#</string>
+
+    <string name="variable_name_label">Nom</string>
+    <string name="variable_value_label">Valeur</string>
 </resources>

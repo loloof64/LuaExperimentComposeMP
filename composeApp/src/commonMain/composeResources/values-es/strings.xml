@@ -28,4 +28,7 @@
     <string name="parser_error_eof">#FinDelDocumento#</string>
     <string name="parser_error_variable">#NombreDeUnaVariable#</string>
     <string name="parser_error_integer">#Entero#</string>
+
+    <string name="variable_name_label">Nombre</string>
+    <string name="variable_value_label">Valor</string>
 </resources>

@@ -2,6 +2,14 @@
 
 A simple experiment with [Lua language](https://www.lua.org/) in Jetpack Compose Multiplatform.
 
+This is a parser for a tiny subset of the Lua language, where :
+* strings have been removed
+* floats have been removed
+* hexadecimal values have been removed
+* tables have been removed
+* loop instructions have been removed
+* functions have been removed
+
 ## Credits
 
 ### Images

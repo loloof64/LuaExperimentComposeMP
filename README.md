@@ -2,11 +2,7 @@
 
 A simple experiment with [Lua language](https://www.lua.org/) in Jetpack Compose Multiplatform.
 
-
-
-[Demonstration](https://github.com/loloof64/LuaExperimentComposeMP/assets/1826495/e01656ef-1d47-4cfb-ae2e-d8e3af47033d)
-
-
+[Demonstration](https://github.com/loloof64/LuaExperimentComposeMP/assets/1826495/34e38d4d-d45f-45d1-ba3f-268ff323d83d)
 
 ## Language
 

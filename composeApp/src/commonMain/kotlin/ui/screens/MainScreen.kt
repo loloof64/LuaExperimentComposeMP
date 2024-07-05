@@ -177,7 +177,7 @@ fun MainScreen() {
             if (errorsToShow.isNotEmpty()) {
                 errorsDialogOpened = true
             } else {
-                visitor.getVariables().forEach{current ->
+                visitor.getVariables().toSortedMap().forEach{current ->
                     resultsToShow.add(listOf(current.key, current.value.toString()))
                 }
                 resultSummaryOpened = true

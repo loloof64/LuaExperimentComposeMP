@@ -2,51 +2,28 @@ package ui.composables.summaries
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 typealias SummaryLineValues = List<String>
-
-/* =========================================================
-private val topSseparator = "@@@"
-private val innerSeparator = "###"
-
-val summaryLineValuesSaver = Saver<MutableState<MutableList<SummaryLineValues>>, String>(
-    save = { mutableState ->
-        mutableState.value.joinToString(topSseparator) { line ->
-            line.joinToString(innerSeparator)
-        }
-    },
-    restore = { savedState ->
-        mutableStateOf(
-            savedState.split(topSseparator).map { line ->
-                line.split(innerSeparator)
-            }.toMutableList()
-        )
-    }
-)
-============================================================
-*/
 
 sealed class SummaryColumnSize
 
@@ -67,6 +44,7 @@ fun SummaryTable(
     header: SummaryLineValues?,
     lines: List<SummaryLineValues>,
     columnSizes: List<SummaryColumnSize>,
+    onCellSelected: (Int, SummaryLineValues) -> Unit = { _columnIndex, _content: SummaryLineValues -> }
 ) {
     LazyColumn(modifier = modifier) {
         if (header != null) {
@@ -76,7 +54,7 @@ fun SummaryTable(
         }
 
         items(lines) { currentLine ->
-            SummaryLine(content = currentLine, columnSizes = columnSizes)
+            SummaryLine(content = currentLine, columnSizes = columnSizes, onCellSelected = onCellSelected)
         }
     }
 }
@@ -113,6 +91,7 @@ fun SummaryLine(
     textColor: Color = MaterialTheme.colors.primary,
     linesColor: Color = MaterialTheme.colors.secondary,
     commonHeight: Dp = 35.dp,
+    onCellSelected: (Int, SummaryLineValues) -> Unit = { _columnIndex, _content: SummaryLineValues -> }
 ) {
     SummaryContentBase(
         modifier = modifier,
@@ -124,6 +103,7 @@ fun SummaryLine(
         contentAlignment = TextAlign.Start,
         fontWeight = FontWeight.Medium,
         commonHeight = commonHeight,
+        onCellSelected = onCellSelected,
     )
 }
 
@@ -138,6 +118,7 @@ private fun SummaryContentBase(
     fontWeight: FontWeight,
     linesColor: Color,
     commonHeight: Dp,
+    onCellSelected: (Int, SummaryLineValues) -> Unit = { _columnIndex, _content: SummaryLineValues -> }
 ) {
     Row(modifier = modifier) {
         for (i in content.indices) {
@@ -152,14 +133,17 @@ private fun SummaryContentBase(
                 border = BorderStroke(3.dp, linesColor)
             ) {
                 Text(
-                    modifier = Modifier.padding(6.dp).height(commonHeight)
-                        .horizontalScroll(rememberScrollState()),
+                    modifier = Modifier.padding(6.dp).height(commonHeight).pointerInput(Unit) {
+                        detectTapGestures(onTap = {
+                            onCellSelected(i, content)
+                        })
+                    },
                     text = currentText,
                     color = textColor,
                     fontWeight = fontWeight,
                     textAlign = contentAlignment,
                     softWrap = false,
-                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
